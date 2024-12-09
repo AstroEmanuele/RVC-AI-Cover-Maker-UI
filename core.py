@@ -949,7 +949,6 @@ def full_inference_program(
         new_frame_rate = int(audio.frame_rate * factor)
         audio = audio._spawn(audio.raw_data, overrides={"frame_rate": new_frame_rate})
 
-        audio = audio.set_frame_rate(audio.frame_rate)
         output_dir_pitch = os.path.join(
             now_dir, "audio_files", music_folder, "instrumentals"
         )
