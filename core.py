@@ -9,6 +9,7 @@ from pydub import AudioSegment
 from audio_separator.separator import Separator
 import logging
 import yaml
+import librosa
 
 now_dir = os.getcwd()
 sys.path.append(now_dir)
@@ -944,10 +945,9 @@ def full_inference_program(
         )
         audio = AudioSegment.from_file(inst_path)
 
-        factor = 2 ** (change_inst_pitch / 12)
-
-        new_frame_rate = int(audio.frame_rate * factor)
-        audio = audio._spawn(audio.raw_data, overrides={"frame_rate": new_frame_rate})
+        y, sr = librosa.load(inst_path, sr=None)
+    
+        y_shifted = librosa.effects.pitch_shift(y, sr, n_steps=change_inst_pitch)
 
         output_dir_pitch = os.path.join(
             now_dir, "audio_files", music_folder, "instrumentals"
