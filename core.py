@@ -946,8 +946,18 @@ def full_inference_program(
         )
 
         y, sr = librosa.load(inst_path, sr=None)
+
+        print(f"Original sample rate: {sr}")
+        print(f"Original audio length: {len(y)} samples")
     
         y_shifted = librosa.effects.pitch_shift(y, sr, n_steps=change_inst_pitch)
+
+        if change_inst_pitch > 0:
+            print(f"Pitch shifted up by {change_inst_pitch} semitones")
+        elif change_inst_pitch < 0:
+            print(f"Pitch shifted down by {abs(change_inst_pitch)} semitones")
+        else:
+            print("No pitch shift applied (change_inst_pitch is 0)")
 
         output_dir_pitch = os.path.join(
             now_dir, "audio_files", music_folder, "instrumentals"
@@ -957,6 +967,7 @@ def full_inference_program(
         )
         
         sf.write(output_path_pitch, y_shifted, sr, format="flac")
+        print(f"Pitch-shifted audio saved to {output_path_pitch}")
 
     # merge audios
     store_dir = os.path.join(now_dir, "audio_files", music_folder, "final")
