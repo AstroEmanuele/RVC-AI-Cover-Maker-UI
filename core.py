@@ -10,6 +10,7 @@ from audio_separator.separator import Separator
 import logging
 import yaml
 import librosa
+import soundfile as sf
 
 now_dir = os.getcwd()
 sys.path.append(now_dir)
@@ -943,7 +944,6 @@ def full_inference_program(
                 "instrumentals",
             ),
         )
-        audio = AudioSegment.from_file(inst_path)
 
         y, sr = librosa.load(inst_path, sr=None)
     
@@ -955,7 +955,8 @@ def full_inference_program(
         output_path_pitch = os.path.join(
             output_dir_pitch, "inst_with_changed_pitch.flac"
         )
-        audio.export(output_path_pitch, format="flac")
+        
+        sf.write(output_path_pitch, y_shifted, sr, format="flac")
 
     # merge audios
     store_dir = os.path.join(now_dir, "audio_files", music_folder, "final")
