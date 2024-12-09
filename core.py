@@ -932,42 +932,73 @@ def full_inference_program(
                 os.path.basename(input_audio_path),
             ),
         )
-    if change_inst_pitch != 0:
-        print("Changing instrumental pitch")
-        inst_path = os.path.join(
-            now_dir,
-            "audio_files",
-            music_folder,
-            "instrumentals",
-            search_with_word(
-                os.path.join(now_dir, "audio_files", music_folder, "instrumentals"),
-                "instrumentals",
-            ),
-        )
-
-        y, sr = librosa.load(inst_path, sr=None)
-
-        print(f"Original sample rate: {sr}")
-        print(f"Original audio length: {len(y)} samples")
+    try:
+        if change_inst_pitch != 0:
+            print("Changing instrumental pitch")
     
-        y_shifted = librosa.effects.pitch_shift(y, sr, n_steps=change_inst_pitch)
-
-        if change_inst_pitch > 0:
-            print(f"Pitch shifted up by {change_inst_pitch} semitones")
-        elif change_inst_pitch < 0:
-            print(f"Pitch shifted down by {abs(change_inst_pitch)} semitones")
-        else:
-            print("No pitch shift applied (change_inst_pitch is 0)")
-
-        output_dir_pitch = os.path.join(
-            now_dir, "audio_files", music_folder, "instrumentals"
-        )
-        output_path_pitch = os.path.join(
-            output_dir_pitch, "inst_with_changed_pitch.flac"
-        )
+            # Generate the path for the instrumental file
+            inst_path = os.path.join(
+                now_dir,
+                "audio_files",
+                music_folder,
+                "instrumentals",
+                search_with_word(
+                    os.path.join(now_dir, "audio_files", music_folder, "instrumentals"),
+                    "instrumentals",
+                ),
+            )
+            
+            # Check if the file exists
+            if not os.path.exists(inst_path):
+                print(f"Error: File does not exist: {inst_path}")
+            else:
+                print(f"Found file: {inst_path}")
+            
+            # Load the audio file with its original sample rate
+            print("Loading audio file...")
+            y, sr = librosa.load(inst_path, sr=None)
+            print(f"Loaded audio file with sample rate: {sr}")
+    
+            # Check the first few samples of the audio to ensure it's loaded correctly
+            print(f"First few samples of original audio: {y[:10]}")
+    
+            # Apply pitch shift
+            print(f"Applying pitch shift of {change_inst_pitch} semitones...")
+            y_shifted = librosa.effects.pitch_shift(y, sr, n_steps=change_inst_pitch)
+    
+            # Check the first few samples after pitch shift
+            print(f"First few samples of pitch-shifted audio: {y_shifted[:10]}")
+    
+            # Verify that pitch shift happened
+            if change_inst_pitch > 0:
+                print(f"Pitch shifted up by {change_inst_pitch} semitones")
+            elif change_inst_pitch < 0:
+                print(f"Pitch shifted down by {abs(change_inst_pitch)} semitones")
+            else:
+                print("No pitch shift applied (change_inst_pitch is 0)")
+    
+            # Prepare the output directory and file path
+            output_dir_pitch = os.path.join(
+                now_dir, "audio_files", music_folder, "instrumentals"
+            )
+            output_path_pitch = os.path.join(
+                output_dir_pitch, "inst_with_changed_pitch.flac"
+            )
+    
+            # Check if output directory exists
+            if not os.path.exists(output_dir_pitch):
+                print(f"Error: Output directory does not exist: {output_dir_pitch}")
+            else:
+                print(f"Output directory exists: {output_dir_pitch}")
+    
+            # Save the pitch-shifted audio
+            print(f"Saving pitch-shifted audio to {output_path_pitch}...")
+            sf.write(output_path_pitch, y_shifted, sr, format="flac")
+            print(f"Pitch-shifted audio saved to {output_path_pitch}")
         
-        sf.write(output_path_pitch, y_shifted, sr, format="flac")
-        print(f"Pitch-shifted audio saved to {output_path_pitch}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 
     # merge audios
     store_dir = os.path.join(now_dir, "audio_files", music_folder, "final")
